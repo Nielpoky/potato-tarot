@@ -1,0 +1,45 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      // Mirrors NEXT_PUBLIC_ADMIN_EMAILS — keep this list in sync manually,
+      // or better: store admin emails in a Firestore 'admins' collection
+      // and check request.auth.token.email in that list via get().
+      return request.auth != null &&
+        request.auth.token.email in [
+          "erikkxxu@gmail.com"
+        ];
+    }
+
+    // Public board settings: anyone can read, only admin can write
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Queue: public can read (for the live board), only admin can write
+    match /queue/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Sessions (20K package time slots): public read, admin write
+    match /sessions/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // History, revenue: admin only, never exposed to the public board
+    match /history/{docId} {
+      allow read, write: if isAdmin();
+    }
+    match /revenue/{docId} {
+      allow read, write: if isAdmin();
+    }
+    match /notificationSettings/{docId} {
+      allow read, write: if isAdmin();
+    }
+  }
+}
