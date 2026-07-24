@@ -10,25 +10,21 @@ service cloud.firestore {
         ];
     }
 
-    // Public board settings: anyone can read, only admin can write
     match /settings/{docId} {
       allow read: if true;
       allow write: if isAdmin();
     }
 
-    // Queue: public can read (for the live board), only admin can write
     match /queue/{docId} {
       allow read: if true;
       allow write: if isAdmin();
     }
 
-    // Sessions (20K package time slots): public read, admin write
     match /sessions/{docId} {
       allow read: if true;
       allow write: if isAdmin();
     }
 
-    // History, revenue: admin only, never exposed to the public board
     match /history/{docId} {
       allow read, write: if isAdmin();
     }

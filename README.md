@@ -53,12 +53,38 @@ and the admin dashboard that manages all of it.
 
 ## Roadmap
 
-- [x] **Phase 1** — Scaffold + public landing page (this delivery)
-- [ ] **Phase 2** — Google auth-gated `/admin`, dashboard shell, Queue /
-      Session / Premium management (add/edit/delete/move/next-queue)
-- [ ] **Phase 3** — QRIS upload, Settings panel, History with search/filter/
-      export, Revenue dashboard with charts, Telegram/Discord notifications,
-      xlsx export
+- [x] **Phase 1** — Scaffold + public landing page
+- [x] **Phase 2** — Google-auth-gated `/admin`, dashboard shell, Queue /
+      Session / Premium management (this delivery)
+- [ ] **Phase 3** — Settings polish, History with search/filter/export,
+      Revenue dashboard with charts, Telegram/Discord notifications, xlsx
+      export
+
+## Phase 2: Admin Dashboard
+
+- `/admin/login` — Google sign-in. Only emails listed in
+  `NEXT_PUBLIC_ADMIN_EMAILS` (and mirrored in `firestore.rules`'
+  `isAdmin()`) can get past the gate; everyone else is redirected back to
+  login.
+- `/admin` — quick status overview (current status, remaining slots, queue
+  counts, who's currently reading).
+- `/admin/queue` — add/edit/delete customers, reorder the waiting list,
+  "Selesai" (finish reading → archives to `history`, removes from the
+  public board), "Next Queue" (promotes the next WAITING customer to
+  READING). General and Premium queues are managed as separate segments.
+- `/admin/sessions` — create/delete Tanya Bebas (Rp20.000) time slots,
+  adjust capacity.
+- `/admin/premium` — adjust today's premium queue capacity.
+- `/admin/settings` — status (OPEN/BREAK/CLOSED), Full Today toggle
+  (`acceptingOrders`), working hours, total slot capacity, estimated wait
+  text, TikTok username. All writes go straight to `settings/board` and
+  reflect on the public landing page instantly (realtime listener, no
+  refresh needed).
+
+**Important:** keep the admin email(s) in sync in two places —
+`.env.local` / Netlify's `NEXT_PUBLIC_ADMIN_EMAILS`, and the `isAdmin()`
+function in `firestore.rules`. The env var gates the UI; the Firestore
+rule is what actually enforces write permission at the database level.
 
 ## Notes
 
